@@ -7,33 +7,42 @@ library(ggplot2)
 
 # Colocar el directorio de trabajo según corresponda
 
-setwd("C:/Users/User/Documents/Bedu/Sesion 8/post/")
+# Directorio de Trabajo de Nicky. Recuerda modificarlo!
+# setwd("/home/nicky/WorkingDirectory/Proyecto-R-BEDU/") 
 
 # Descarga de archivos
 # https://www.football-data.co.uk/spainm.php
 
-u1011 <- "https://www.football-data.co.uk/mmz4281/1011/SP1.csv"
-u1112 <- "https://www.football-data.co.uk/mmz4281/1112/SP1.csv"
-u1213 <- "https://www.football-data.co.uk/mmz4281/1213/SP1.csv"
-u1314 <- "https://www.football-data.co.uk/mmz4281/1314/SP1.csv"
-u1415 <- "https://www.football-data.co.uk/mmz4281/1415/SP1.csv"
-u1516 <- "https://www.football-data.co.uk/mmz4281/1516/SP1.csv"
-u1617 <- "https://www.football-data.co.uk/mmz4281/1617/SP1.csv"
-u1718 <- "https://www.football-data.co.uk/mmz4281/1718/SP1.csv"
-u1819 <- "https://www.football-data.co.uk/mmz4281/1819/SP1.csv"
-u1920 <- "https://www.football-data.co.uk/mmz4281/1920/SP1.csv"
-
-#RawData <- "C:\\\"
-download.file(url = u1011, destfile ="SP1-1011.csv", mode = "wb")
-download.file(url = u1112, destfile ="SP1-1112.csv", mode = "wb")
-download.file(url = u1213, destfile ="SP1-1213.csv", mode = "wb")
-download.file(url = u1314, destfile ="SP1-1314.csv", mode = "wb")
-download.file(url = u1415, destfile ="SP1-1415.csv", mode = "wb")
-download.file(url = u1516, destfile ="SP1-1516.csv", mode = "wb")
-download.file(url = u1617, destfile ="SP1-1617.csv", mode = "wb")
-download.file(url = u1718, destfile ="SP1-1718.csv", mode = "wb")
-download.file(url = u1819, destfile ="SP1-1819.csv", mode = "wb")
-download.file(url = u1920, destfile ="SP1-1920.csv", mode = "wb")
+##############################################################################
+# Generamos los URL donde están los .csv de forma programática y vamos 
+# descargando los archivos, siguiendo el patrón de nombramiento, en el 
+# directorio de trabajo.
+##############################################################################
+for (i in 0:9) {
+  
+  # Obtenemos las URL una por una de forma programática siguiendo el patrón que tienen los
+  # archivos que nos interesan en www.football-data.co.uk
+  current.url <- paste(
+    "https://www.football-data.co.uk/mmz4281/1",i,11+i,"/SP1.csv", 
+    sep = ""
+  )
+  
+  # Descarga del archivo cuya URL es el valor de la variable current.url 
+  # en el directorio de trabajo.
+  
+  # variable que almacena el nombre del archivo que vamos a descargar.
+  temp.destfile <- paste("SP1-1",i,11+i,".csv", sep = "")
+  
+  # si el archivo no está en el directorio de trabajo lo descargamos
+  if(!(temp.destfile %in% dir())){
+    download.file(
+      url = current.url, 
+      destfile = temp.destfile,
+      mode = "wb"
+    )
+  }
+  
+}
 
 # Lectura de datos
 
