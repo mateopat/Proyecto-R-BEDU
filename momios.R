@@ -36,8 +36,6 @@ if(!dir.exists(rawData.dir)){                                                   
 # directorio de trabajo.
 #
 ##############################################################################
-
-                                                                                
                                                                                 
 
 setwd(rawData.dir)                                                              # cambiamos temporalmente el working directory para descargar en rawData.dir
@@ -69,7 +67,7 @@ for (i in 0:9) {
 #
 ################################################################################
 
-files <- lapply(list.files(path = "."), read.csv)
+files <- lapply(list.files(path = "."), read.csv)                               # del directorio actual, guardamos los archivos csv en una lista.
 
 setwd("./..")                                                                   # regresamos al wd original
 
@@ -91,7 +89,9 @@ for (i in 1:length(files)){
     
     temp.file <- select(temp.file, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
     
-    sfiles <- append(sfiles, list(temp.file))
+    # temp.file <- mutate(temp.file, Date = as.Date(Date, format = "%d/%m/%y"))
+    
+    # sfiles <- append(sfiles, list(temp.file))
     
   }else{                                                                        # si el archivo no tiene las variables "BbMx.2.5" y "BbAv.2.5.1"
     
@@ -99,27 +99,49 @@ for (i in 1:length(files)){
     
     temp.file <- select(temp.file, -Time)                                       # a los valores seleccionados réstales la columna Time
     
-    sfiles <- append(sfiles, list(temp.file))                                   # agrega en una lista los valores seleccionados.
+    # temp.file <- mutate(temp.file, Date = as.Date(Date, format = "%d/%m/%y"))
+    
+    # sfiles <- append(sfiles, list(d1920 = temp.file))
     
   }
   
+  temp.file <- mutate(temp.file, Date = as.Date(Date, format = "%d/%m/%y"))     # corregimos el formato de la fecha en el data.frame temp.file
+  
+  sfiles <- append(sfiles, list(temp.file))                                     # agrega en una lista el data.frame procesado, temp.file.
+  
 }
-
-# Arreglamos las fechas
-d1011S <- mutate(d1011S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1112S <- mutate(d1112S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1213S <- mutate(d1213S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1314S <- mutate(d1314S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1415S <- mutate(d1415S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1516S <- mutate(d1516S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1617S <- mutate(d1617S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1718S <- mutate(d1718S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1819S <- mutate(d1819S, Date = as.Date(Date, format = "%d/%m/%Y"))
-d1920S <- mutate(d1920S, Date = as.Date(Date, format = "%d/%m/%Y"))
 
 # Unimos de d1415S a d1819S
 
-d1019S <- rbind(d1011S, d1112S, d1213S, d1314S, d1415S, d1516S, d1617S, d1718S, d1819S)
+# Esto es O(n²). Es muy lento para n grande. Hay que buscar una mejor solución
+# Para cada x en sfiles, vamos preguntando si para cada nombre en temp.names
+# está la variable "BbMx.2.5
+
+# Propongo que en el primer for de la sección de procesamiento de datos,
+# busquemos una forma de discriminar "desde el primer nivel de iteración"
+# al df que tiene la variable BbMX.2.5 como lo hace el código comentado en
+# esa parte del script.
+
+d1019S <- data.frame()
+d1920S <- data.frame()
+
+for (i in 1:length(sfiles)){
+  
+  temp.file <- sfiles[[i]]                                                      # guarda temporalmente el df i-ésimo de sfiles en temp.file
+  
+  temp.names <- names(temp.file)                                                # obtén las columnas del df que guardaste en temp.file
+  
+  if(!("BbMx.2.5" %in% temp.names)){                                            # Si BbMx.2.5 no es una variable de temp.file
+    
+    d1920S <- temp.file                                                         # La marcamos. Sabemos que sólo uno de los df la tiene, por lo que
+                                                                                # hacer esto es suficiente.
+  }else{
+    
+    d1019S <- rbind(temp.file, d1019S)                                          # Si BbMx.2.5 es una variable de temp.file
+                                                                                # vamos juntando las columnas de los df que ya juntamos con el
+                                                                                # df en temp.file
+  }
+}
 
 # Renombrar columnas
 
