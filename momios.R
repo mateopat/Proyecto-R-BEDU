@@ -1,23 +1,49 @@
 
-library(fbRanks)
-library(dplyr)
-library(ggplot2)
+# tidyverse incluye:
+#   - dplyr
+#   - ggplot2
+#   - tidyr
+#   - readr
+#   - tibble
+# Y otros paquetes útiles.
 
+library(fbRanks)
+library(tidyverse)
 
 
 # Colocar el directorio de trabajo según corresponda
 
 # Directorio de Trabajo de Nicky. Recuerda modificarlo!
-# setwd("/home/nicky/WorkingDirectory/Proyecto-R-BEDU/") 
+setwd("/home/nicky/WorkingDirectory/Proyecto-R-BEDU/") 
 
-# Descarga de archivos
-# https://www.football-data.co.uk/spainm.php
+################################################################################
+#
+#                            Descarga de archivos
+#                 https://www.football-data.co.uk/spainm.php
+#
+################################################################################
+
+# Creamos un nuevo directorio donde guardar los documentos
+
+rawData.dir <- "./raw_data"                                                     # variable que almacena el directorio donde van a ir los .csv descargados
+
+if(!dir.exists(rawData.dir)){                                                   # si no existe la carpeta rawData.dir en el working directory
+  dir.create(rawData.dir)                                                       # entonces hay que crearla
+}
 
 ##############################################################################
+#
 # Generamos los URL donde están los .csv de forma programática y vamos 
 # descargando los archivos, siguiendo el patrón de nombramiento, en el 
 # directorio de trabajo.
+#
 ##############################################################################
+
+# cambiamos temporalmente el working directory para descargar en rawData.dir
+# los archivos de forma sencilla
+
+setwd(rawData.dir)
+
 for (i in 0:9) {
   
   # Obtenemos las URL una por una de forma programática siguiendo el patrón que tienen los
@@ -34,34 +60,45 @@ for (i in 0:9) {
   temp.destfile <- paste("SP1-1",i,11+i,".csv", sep = "")
   
   # si el archivo no está en el directorio de trabajo lo descargamos
-  if(!(temp.destfile %in% dir())){
+  if(!file.exists(temp.destfile)){
     download.file(
       url = current.url, 
       destfile = temp.destfile,
       mode = "wb"
     )
   }
-  
 }
 
-# Lectura de datos
+# regresamos a nuestro wd
 
-#lista <- lapply(list.files(path = RawData), read.csv)
+setwd("./..")
 
-# Procesamiento de datos
+################################################################################
+#
+#                              Lectura de datos
+#
+################################################################################
+
+lista <- lapply(list.files(path = RawData), read_csv)
+
+################################################################################
+#
+#                            Procesamiento de datos
+#
+################################################################################
 
 #lista <- lapply(lista, select, Date:FTR)
 
-d1011 <- read.csv("SP1-1011.csv")
-d1112 <- read.csv("SP1-1112.csv")
-d1213 <- read.csv("SP1-1213.csv")
-d1314 <- read.csv("SP1-1314.csv")
-d1415 <- read.csv("SP1-1415.csv")
-d1516 <- read.csv("SP1-1516.csv")
-d1617 <- read.csv("SP1-1617.csv")
-d1718 <- read.csv("SP1-1718.csv")
-d1819 <- read.csv("SP1-1819.csv")
-d1920 <- read.csv("SP1-1920.csv")
+# d1011 <- read.csv("SP1-1011.csv")
+# d1112 <- read.csv("SP1-1112.csv")
+# d1213 <- read.csv("SP1-1213.csv")
+# d1314 <- read.csv("SP1-1314.csv")
+# d1415 <- read.csv("SP1-1415.csv")
+# d1516 <- read.csv("SP1-1516.csv")
+# d1617 <- read.csv("SP1-1617.csv")
+# d1718 <- read.csv("SP1-1718.csv")
+# d1819 <- read.csv("SP1-1819.csv")
+# d1920 <- read.csv("SP1-1920.csv")
 
 d1011S <- select(d1011, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
 d1112S <- select(d1112, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
