@@ -7,6 +7,7 @@
 - Estefanía
 - Kevin
 - Nicky García Fierros (nickygarcia@ciencias.unam.mx)
+- Mateo
 
 ## Descripción
 
