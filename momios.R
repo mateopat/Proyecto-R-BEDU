@@ -10,11 +10,8 @@
 library(fbRanks)
 library(tidyverse)
 
-
-# Colocar el directorio de trabajo según corresponda
-
-# Directorio de Trabajo de Nicky. Recuerda modificarlo!
-setwd("/home/nicky/WorkingDirectory/Proyecto-R-BEDU/") 
+wd <- "/home/nicky/WorkingDirectory/Proyecto-R-BEDU/"                           # Directorio de Trabajo de Nicky. Recuerda modificarlo!
+setwd(wd)
 
 ################################################################################
 #
@@ -39,29 +36,22 @@ if(!dir.exists(rawData.dir)){                                                   
 #
 ##############################################################################
 
-# cambiamos temporalmente el working directory para descargar en rawData.dir
-# los archivos de forma sencilla
+                                                                                
+                                                                                
 
-setwd(rawData.dir)
-
+setwd(rawData.dir)                                                              # cambiamos temporalmente el working directory para descargar en rawData.dir
+                                                                                # los archivos de forma sencilla
 for (i in 0:9) {
   
-  # Obtenemos las URL una por una de forma programática siguiendo el patrón que tienen los
-  # archivos que nos interesan en www.football-data.co.uk
-  current.url <- paste(
-    "https://www.football-data.co.uk/mmz4281/1",i,11+i,"/SP1.csv", 
+  current.url <- paste(                                                         # Obtenemos las URL una por una de forma programática siguiendo el patrón que tienen los
+    "https://www.football-data.co.uk/mmz4281/1",i,11+i,"/SP1.csv",              # archivos que nos interesan en www.football-data.co.uk
     sep = ""
   )
   
-  # Descarga del archivo cuya URL es el valor de la variable current.url 
-  # en el directorio de trabajo.
+  temp.destfile <- paste("SP1-1",i,11+i,".csv", sep = "")                       # variable que almacena el nombre del archivo que vamos a descargar.
   
-  # variable que almacena el nombre del archivo que vamos a descargar.
-  temp.destfile <- paste("SP1-1",i,11+i,".csv", sep = "")
-  
-  # si el archivo no está en el directorio de trabajo lo descargamos
-  if(!file.exists(temp.destfile)){
-    download.file(
+  if(!file.exists(temp.destfile)){                                              # si el archivo no está en el directorio de trabajo lo descargamos
+    download.file(                                                              # de la URL almacenada en la variable current.url al rawData.dir
       url = current.url, 
       destfile = temp.destfile,
       mode = "wb"
@@ -69,9 +59,7 @@ for (i in 0:9) {
   }
 }
 
-# regresamos a nuestro wd
-
-setwd("./..")
+setwd("./..")                                                                   # regresamos al wd original
 
 ################################################################################
 #
