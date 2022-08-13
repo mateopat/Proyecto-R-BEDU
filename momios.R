@@ -51,11 +51,7 @@ for (i in 0:9) {
   
   if(!file.exists(temp.destfile)){                                              # si el archivo no está en el directorio de trabajo lo descargamos
     
-    download.file(                                                              # de la URL almacenada en la variable current.url al rawData.dir
-      url = current.url, 
-      destfile = temp.destfile,
-      mode = "wb"
-    )
+    download.file(url = current.url,destfile = temp.destfile, mode = "wb")      # de la URL almacenada en la variable current.url al rawData.dir
     
   }
   
