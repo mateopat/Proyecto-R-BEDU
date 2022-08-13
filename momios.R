@@ -11,6 +11,7 @@ library(fbRanks)
 library(tidyverse)
 
 wd <- "/home/nicky/WorkingDirectory/Proyecto-R-BEDU/"                           # Directorio de Trabajo de Nicky. Recuerda modificarlo!
+
 setwd(wd)
 
 ################################################################################
@@ -51,15 +52,16 @@ for (i in 0:9) {
   temp.destfile <- paste("SP1-1",i,11+i,".csv", sep = "")                       # variable que almacena el nombre del archivo que vamos a descargar.
   
   if(!file.exists(temp.destfile)){                                              # si el archivo no está en el directorio de trabajo lo descargamos
+    
     download.file(                                                              # de la URL almacenada en la variable current.url al rawData.dir
       url = current.url, 
       destfile = temp.destfile,
       mode = "wb"
     )
+    
   }
+  
 }
-
-setwd("./..")                                                                   # regresamos al wd original
 
 ################################################################################
 #
@@ -67,7 +69,9 @@ setwd("./..")                                                                   
 #
 ################################################################################
 
-lista <- lapply(list.files(path = RawData), read_csv)
+files <- lapply(list.files(path = "."), read.csv)
+
+setwd("./..")                                                                   # regresamos al wd original
 
 ################################################################################
 #
@@ -75,31 +79,31 @@ lista <- lapply(list.files(path = RawData), read_csv)
 #
 ################################################################################
 
-#lista <- lapply(lista, select, Date:FTR)
-
-# d1011 <- read.csv("SP1-1011.csv")
-# d1112 <- read.csv("SP1-1112.csv")
-# d1213 <- read.csv("SP1-1213.csv")
-# d1314 <- read.csv("SP1-1314.csv")
-# d1415 <- read.csv("SP1-1415.csv")
-# d1516 <- read.csv("SP1-1516.csv")
-# d1617 <- read.csv("SP1-1617.csv")
-# d1718 <- read.csv("SP1-1718.csv")
-# d1819 <- read.csv("SP1-1819.csv")
-# d1920 <- read.csv("SP1-1920.csv")
-
-d1011S <- select(d1011, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1112S <- select(d1112, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1213S <- select(d1213, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1314S <- select(d1314, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1415S <- select(d1415, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1516S <- select(d1516, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1617S <- select(d1617, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1718S <- select(d1718, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1819S <- select(d1819, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1920S <- select(d1920, Date:FTAG, Max.2.5:Avg.2.5.1)
-d1920S <- select(d1920S, -Time)
-#colnames(d1718S); colnames(d1819S); colnames(d1920S)
+sfiles <- list()                                                                # inicializamos una lista vacía que se encargará de almacenar
+                                                                                # los data.frame después de aplicarles un select.
+for (i in 1:length(files)){
+  
+  temp.file <- files[[i]]                                                       # guarda temporalmente el archivo i-ésimo de files en temp.file
+  
+  temp.names <- names(temp.file)                                                # obtén las columnas del archivo que guardaste en temp.file
+  
+  if ("BbMx.2.5" %in% temp.names && "BbAv.2.5.1" %in% temp.names){              # si el archivo tiene las variables "BbMx.2.5" y "BbAv.2.5.1"
+    
+    temp.file <- select(temp.file, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
+    
+    sfiles <- append(sfiles, list(temp.file))
+    
+  }else{                                                                        # si el archivo no tiene las variables "BbMx.2.5" y "BbAv.2.5.1"
+    
+    temp.file <- select(temp.file, Date:FTAG, Max.2.5:Avg.2.5.1)                # obten los valores de las columnas Date:FTAG y Max.2.5:Avg.2.5.1
+    
+    temp.file <- select(temp.file, -Time)                                       # a los valores seleccionados réstales la columna Time
+    
+    sfiles <- append(sfiles, list(temp.file))                                   # agrega en una lista los valores seleccionados.
+    
+  }
+  
+}
 
 # Arreglamos las fechas
 d1011S <- mutate(d1011S, Date = as.Date(Date, format = "%d/%m/%y"))
