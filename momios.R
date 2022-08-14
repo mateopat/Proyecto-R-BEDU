@@ -29,28 +29,16 @@ d.list <- lapply(files.path, read.csv)
 
 # ========================================== Procesamiento de datos =================================================
 
-# Realizamos las selecciones de columnas para cada tabla
+# Realizamos las selecciones de columnas para cada dataframe
 d.list[1:9] <- lapply(d.list[1:9], select, Date:FTAG, BbMx.2.5:BbAv.2.5.1) #Equivale a la selección de d1011S a d1819S
 d.list[10] <- lapply(d.list[10], select, Date, HomeTeam:FTAG, Max.2.5:Avg.2.5.1) #Equivale a la selección en d1920S 
 
 # Arreglamos las fechas
+d.list <- lapply(d.list, mutate, Date = as.Date(Date, format = "%d/%m/%y"))
 
-lapply(d.list, mutate, Date = as.Date(Date, format = "%d/%m/%y"))
+# Unimos de 1415 a 1819 usando la función bind_rows() de dplyr}
 
-d1011S <- mutate(d1011S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1112S <- mutate(d1112S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1213S <- mutate(d1213S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1314S <- mutate(d1314S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1415S <- mutate(d1415S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1516S <- mutate(d1516S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1617S <- mutate(d1617S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1718S <- mutate(d1718S, Date = as.Date(Date, format = "%d/%m/%y"))
-d1819S <- mutate(d1819S, Date = as.Date(Date, format = "%d/%m/%Y"))
-d1920S <- mutate(d1920S, Date = as.Date(Date, format = "%d/%m/%Y"))
-
-# Unimos de d1415S a d1819S
-
-d1019S <- rbind(d1011S, d1112S, d1213S, d1314S, d1415S, d1516S, d1617S, d1718S, d1819S)
+d1019S <- bind_rows(d.list[1:9], .id = NULL)
 
 # Renombrar columnas
 
@@ -58,6 +46,8 @@ d1019S <- rename(d1019S,  Max.2.5.O = BbMx.2.5,
                  Avg.2.5.O = BbAv.2.5, 
                  Max.2.5.U = BbMx.2.5.1,
                  Avg.2.5.U = BbAv.2.5.1)
+
+d1920S <- d.list[[10]] #guardamos el dataframe 1920 en d1920S
 
 d1920S <- rename(d1920S,  Max.2.5.O = Max.2.5, 
                  Avg.2.5.O = Avg.2.5, 
