@@ -2,71 +2,41 @@ library(fbRanks)
 library(dplyr)
 library(ggplot2)
 
-
-
 # Colocar el directorio de trabajo según corresponda
 
 setwd("C:/Users/User/Documents/Bedu/Sesion 8/post/")
 
-# Descarga de archivos
+# ============================================ Descarga de archivos ================================================
 # https://www.football-data.co.uk/spainm.php
 
-u1011 <- "https://www.football-data.co.uk/mmz4281/1011/SP1.csv"
-u1112 <- "https://www.football-data.co.uk/mmz4281/1112/SP1.csv"
-u1213 <- "https://www.football-data.co.uk/mmz4281/1213/SP1.csv"
-u1314 <- "https://www.football-data.co.uk/mmz4281/1314/SP1.csv"
-u1415 <- "https://www.football-data.co.uk/mmz4281/1415/SP1.csv"
-u1516 <- "https://www.football-data.co.uk/mmz4281/1516/SP1.csv"
-u1617 <- "https://www.football-data.co.uk/mmz4281/1617/SP1.csv"
-u1718 <- "https://www.football-data.co.uk/mmz4281/1718/SP1.csv"
-u1819 <- "https://www.football-data.co.uk/mmz4281/1819/SP1.csv"
-u1920 <- "https://www.football-data.co.uk/mmz4281/1920/SP1.csv"
+#Mediante un ciclo for descargamos los archivos de cada URL indicada
+#Incrementamos el valor de la penúltima ruta en cada URL, vamos de 1011 a 1921
+#De igual forma incrementamos el valor en el nombre de los archivos de salida
 
-#RawData <- "C:\\\"
-download.file(url = u1011, destfile ="SP1-1011.csv", mode = "wb")
-download.file(url = u1112, destfile ="SP1-1112.csv", mode = "wb")
-download.file(url = u1213, destfile ="SP1-1213.csv", mode = "wb")
-download.file(url = u1314, destfile ="SP1-1314.csv", mode = "wb")
-download.file(url = u1415, destfile ="SP1-1415.csv", mode = "wb")
-download.file(url = u1516, destfile ="SP1-1516.csv", mode = "wb")
-download.file(url = u1617, destfile ="SP1-1617.csv", mode = "wb")
-download.file(url = u1718, destfile ="SP1-1718.csv", mode = "wb")
-download.file(url = u1819, destfile ="SP1-1819.csv", mode = "wb")
-download.file(url = u1920, destfile ="SP1-1920.csv", mode = "wb")
+dir.create("./RawData") #Creación de directorio para guardar los archivos .csv
 
-# Lectura de datos
+for (i in 10:19) {
+  current.url <- paste("https://www.football-data.co.uk/mmz4281/",i,i+1,"/SP1.csv", sep = "")
+  download.file(url = current.url, destfile = paste("./RawData/SP1-",i,i+1,".csv", sep = ""), mode = "wb")
+}
 
-#lista <- lapply(list.files(path = RawData), read.csv)
+# ============================================== Lectura de datos ===================================================
 
-# Procesamiento de datos
+#Creamos una lista con las rutas de los archivos .csv
+files.path <- paste("./RawData/", list.files(path = "./RawData"), sep = "")
+#Leemos cada archivo con read.csv usando lapply y guardamos el contenido de cada archivo en una lista
+d.list <- lapply(files.path, read.csv)
 
-#lista <- lapply(lista, select, Date:FTR)
+# ========================================== Procesamiento de datos =================================================
 
-d1011 <- read.csv("SP1-1011.csv")
-d1112 <- read.csv("SP1-1112.csv")
-d1213 <- read.csv("SP1-1213.csv")
-d1314 <- read.csv("SP1-1314.csv")
-d1415 <- read.csv("SP1-1415.csv")
-d1516 <- read.csv("SP1-1516.csv")
-d1617 <- read.csv("SP1-1617.csv")
-d1718 <- read.csv("SP1-1718.csv")
-d1819 <- read.csv("SP1-1819.csv")
-d1920 <- read.csv("SP1-1920.csv")
-
-d1011S <- select(d1011, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1112S <- select(d1112, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1213S <- select(d1213, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1314S <- select(d1314, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1415S <- select(d1415, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1516S <- select(d1516, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1617S <- select(d1617, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1718S <- select(d1718, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1819S <- select(d1819, Date:FTAG, BbMx.2.5:BbAv.2.5.1)
-d1920S <- select(d1920, Date:FTAG, Max.2.5:Avg.2.5.1)
-d1920S <- select(d1920S, -Time)
-#colnames(d1718S); colnames(d1819S); colnames(d1920S)
+# Realizamos las selecciones de columnas para cada tabla
+d.list[1:9] <- lapply(d.list[1:9], select, Date:FTAG, BbMx.2.5:BbAv.2.5.1) #Equivale a la selección de d1011S a d1819S
+d.list[10] <- lapply(d.list[10], select, Date, HomeTeam:FTAG, Max.2.5:Avg.2.5.1) #Equivale a la selección en d1920S 
 
 # Arreglamos las fechas
+
+lapply(d.list, mutate, Date = as.Date(Date, format = "%d/%m/%y"))
+
 d1011S <- mutate(d1011S, Date = as.Date(Date, format = "%d/%m/%y"))
 d1112S <- mutate(d1112S, Date = as.Date(Date, format = "%d/%m/%y"))
 d1213S <- mutate(d1213S, Date = as.Date(Date, format = "%d/%m/%y"))
