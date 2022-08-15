@@ -101,7 +101,7 @@ server <- function(input, output) {
     
     #Aqui hay que cambiar para que lea el archivo en web
     #datos<-read.csv("D:/BEDU/Curso ciencia de datos/Fase 2/Proyecto Final R Eq 8/match.data.csv")
-    datos<-read.csv("/home/nicky/WorkingDirectory/Proyecto-R-BEDU/match.data.csv")
+    datos<-read.csv("match.data.csv")
     
     }, 
                                         options = list(aLengthMenu = c(5,10,15),
