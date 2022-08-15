@@ -26,12 +26,12 @@ ui <- dashboardPage(
                                  )
                                )
                                 ),# del TAB1
-                      tabPanel(name="dos", "Imagenes del Post work 3",
+                      tabPanel(name="dos", "Imagenes de las Post work 3",
                                
                                fluidRow(
-                                 titlePanel("Gráficas resultado del Postwork 3"), 
-                                 selectInput("x", "Selecciona la gráfica que desea ver",
-                                             choices = c("1", "2", "3")),
+                                 titlePanel("Gráficas de probabilidades marginales de anotar goles"), 
+                                 selectInput("x", "Seleccione el equipo que desea ver la probabilidad de anorta gol(es) ",
+                                             choices = c("Casa", "Visitante", "Conjuntas Casa-Visitante")),
                                  
                                  imageOutput("image2")
                                  #img(src = "POSTWORK3_1.png", 
@@ -61,13 +61,13 @@ server <- function(input, output) {
     if (is.null(input$x))
       return(NULL)
     
-    if (input$x == "1") {
+    if (input$x == "Casa") {
       return(list(
         src = "www/1.png",
         contentType = "image/png",
         alt = "Grafica Resultado 1"
       ))
-    } else if (input$x == "2") {
+    } else if (input$x == "Visitante") {
       return(list(
         src = "www/2.png",
         filetype = "image/png",
@@ -75,7 +75,7 @@ server <- function(input, output) {
       ))
     }
     
-    else if (input$x == "3") {
+    else if (input$x == "Conjuntas Casa-Visitante") {
       return(list(
         src = "www/3.png",
         filetype = "image/png",
