@@ -26,7 +26,7 @@ ui <- dashboardPage(
                                  )
                                )
                                 ),# del TAB1
-                      tabPanel(name="dos", "Imagenes de las Post work 3",
+                      tabPanel(name="dos", "Probabilidades marginales",
                                
                                fluidRow(
                                  titlePanel("Gráficas de probabilidades marginales de anotar goles"), 
@@ -39,7 +39,17 @@ ui <- dashboardPage(
                                )
 
                                ),
-                      tabPanel(name="tres", "Datos del fichero"),
+                      tabPanel(name="tres", "Resultados de partidos",
+                               
+                               
+                               tabItem(tabName = "data_table",
+                                       fluidRow(        
+                                         titlePanel(h3("Resultados de partidos por fecha")),
+                                         dataTableOutput ("data_table")
+                                             )
+                                       )
+                               
+                              ),
                       tabPanel(name="cuatro", "Imagenes de Factores")
                         )
                       )
@@ -84,10 +94,22 @@ server <- function(input, output) {
     }
   
   
-  
-  
   })
 
+  
+  output$data_table <- renderDataTable( {
+    
+    #Aqui hay que cambiar para que lea el archivo en web
+    #datos<-read.csv("D:/BEDU/Curso ciencia de datos/Fase 2/Proyecto Final R Eq 8/match.data.csv")
+    datos<-read.csv("/home/nicky/WorkingDirectory/Proyecto-R-BEDU/match.data.csv")
+    
+    }, 
+                                        options = list(aLengthMenu = c(5,10,15),
+                                                       iDisplayLength = 5)
+  )
+  
+  
+  
   }
   
   
