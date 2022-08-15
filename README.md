@@ -3,7 +3,7 @@
 ## Grupo 8
 
 ### Integrantes
-- Jesús
+- Jesús Manuel Jimenez Cardoza
 - Estefanía
 - Kevin
 - Nicky García Fierros (nickygarcia@ciencias.unam.mx)
