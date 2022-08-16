@@ -1,50 +1,37 @@
 library(shiny)
-library(shinydashboard)
+library(shinythemes)
 
-ui <- dashboardPage(
-  skin = "blue",
-  dashboardHeader(title = "Equipo 8"),
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("Gráficas de barras", tabName = "uno", icon = icon("chart-simple")),
-      menuItem("Probabilidades marginales", tabName = "dos", icon = icon("chart-area")),
-      menuItem("Resultados de partidos", tabName = "tres", icon = icon("table")),
-      menuItem("Factores de ganancia", tabName = "cuatro", icon = icon("chart-line"))
-    )
-  ),
-  dashboardBody(
-    tabItems(
-      #Página 1
-      tabItem(tabName="uno",
-          h1("Gráficas de barras"),
-          fluidRow(
-            box(
-              title = "Estas son las graficas Barra",
-              plotOutput("grafico1", height = 550)   
-            )
-          )
-      ),
-      #Página 2
-      tabItem(tabName="dos",
-           h1("Gráficas de probabilidades marginales de anotar goles"),
-           selectInput("x", "Seleccione el equipo que desea ver la probabilidad de anorta gol(es) ",
-                       choices = c("Casa", "Visitante", "Conjuntas Casa-Visitante")),
-           imageOutput("image2")
-           #img(src = "POSTWORK3_1.png",
-           #   height = 350, width = 550)
-      ),
-      #Página 3
-      tabItem(tabName="tres",
-          h1("Resultados de partidos por fecha"),
-          dataTableOutput ("data_table")
-      ),
-      #Página 4
-      tabItem(tabName = "cuatro",
-          h1("Factores de ganancia promedio y máximo")
-      )
-
-    )
-  )
+ui <- navbarPage("Equipo 8",
+                 collapsible = TRUE,
+                 fluid = TRUE,
+                 theme = shinytheme("darkly"),
+                 #Página 1
+                 tabPanel("Gráficas de barras", icon = icon("chart-simple"),
+                          h1("Gráficas de barras"),
+                          fluidRow(
+                            box(
+                              title = "Estas son las graficas Barra",
+                              plotOutput("grafico1", height = 550)
+                            )
+                          )
+                 ),
+                 #Página 2
+                 tabPanel("Probabilidades marginales", icon = icon("chart-area"),
+                          h1("Gráficas de probabilidades marginales de anotar goles"),
+                          selectInput("x", "Seleccione el equipo que desea ver la probabilidad de anorta gol(es) ",
+                                      choices = c("Casa", "Visitante", "Conjuntas Casa-Visitante")),
+                          imageOutput("image2")
+                 ),
+                 #Página 3
+                 tabPanel("Resultados de partidos", icon = icon("table"),
+                          h1("Resultados de partidos por fecha"),
+                          dataTableOutput ("data_table")
+                 ),
+                 #Página 4
+                 tabPanel("Factores de ganancia", icon = icon("chart-line"),
+                          h1("Factores de ganancia promedio y máximo")
+                 )
+                 
 )
 
 
