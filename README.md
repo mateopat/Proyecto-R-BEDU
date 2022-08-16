@@ -4,7 +4,7 @@
 
 ### Integrantes
 - Jesús Manuel Jimenez Cardoza
-- Estefanía
+- Minerva Estefanía Núñez Manjarrez (estefania.nun.man@gmail.com)
 - Kevin
 - Nicky García Fierros (nickygarcia@ciencias.unam.mx)
 - Mateo
