@@ -1,217 +1,229 @@
+############################### Librerías ######################################
 library(fbRanks)
 library(dplyr)
 library(ggplot2)
 
-# Colocar el directorio de trabajo según corresponda
+###################### Directorio de trabajo ###################################
 
-setwd("C:/Users/User/Documents/Bedu/Sesion 8/post/")
+setwd("~/Documents/BEDU/FASE_2/Proyecto")                                       #Difiere dependiendo del usuario
 
-# ============================================ Descarga de archivos ================================================
+####################### Descarga de archivos ###################################
 # https://www.football-data.co.uk/spainm.php
 
-#Mediante un ciclo for descargamos los archivos de cada URL indicada
-#Incrementamos el valor de la penúltima ruta en cada URL, vamos de 1011 a 1921
-#De igual forma incrementamos el valor en el nombre de los archivos de salida
+dir.create("./RawData")                                                         #Creación de directorio para guardar los archivos .csv
 
-dir.create("./RawData") #Creación de directorio para guardar los archivos .csv
-
-for (i in 10:19) {
-  current.url <- paste("https://www.football-data.co.uk/mmz4281/",i,i+1,"/SP1.csv", sep = "")
-  download.file(url = current.url, destfile = paste("./RawData/SP1-",i,i+1,".csv", sep = ""), mode = "wb")
+for (i in 10:19) {                                                              #Mediante un ciclo for descargamos los archivos de cada URL indicada
+  current.url <- paste(
+    "https://www.football-data.co.uk/mmz4281/",i,i+1,"/SP1.csv", sep = "")      #Incrementamos el valor de la penúltima ruta en cada URL, vamos de 1011 a 1921
+  download.file(url = current.url, destfile = paste(
+    "./RawData/SP1-",i,i+1,".csv", sep = ""), mode = "wb")                      #De igual forma incrementamos el valor en el nombre de los archivos de salida
 }
 
-# ============================================== Lectura de datos ===================================================
+####################### Lectura de datos #######################################
 
-#Creamos una lista con las rutas de los archivos .csv
-files.path <- paste("./RawData/", list.files(path = "./RawData"), sep = "")
-#Leemos cada archivo con read.csv usando lapply y guardamos el contenido de cada archivo en una lista
-d.list <- lapply(files.path, read.csv)
+files.path <- paste("./RawData/", list.files(path = "./RawData"), sep = "")     #Creamos una lista con las rutas de los archivos .csv
 
-# ========================================== Procesamiento de datos =================================================
+d.list <- lapply(files.path, read.csv)                                          #Leemos cada archivo con read.csv usando lapply y guardamos el contenido de cada archivo en una lista
 
-# Realizamos las selecciones de columnas para cada dataframe
-d.list[1:9] <- lapply(d.list[1:9], select, Date:FTAG, BbMx.2.5:BbAv.2.5.1) #Equivale a la selección de d1011S a d1819S
-d.list[10] <- lapply(d.list[10], select, Date, HomeTeam:FTAG, Max.2.5:Avg.2.5.1) #Equivale a la selección en d1920S 
+######################## Procesamiento de datos ################################
+                                                                                # Realizamos las selecciones de columnas para cada dataframe
+d.list[1:9] <- lapply(d.list[1:9], select, Date:FTAG, BbMx.2.5:BbAv.2.5.1)      #Equivale a la selección de d1011S a d1819S
+d.list[10] <- lapply(d.list[10], select, Date, HomeTeam:FTAG, Max.2.5:Avg.2.5.1)#Equivale a la selección en d1920S 
 
-# Arreglamos las fechas
-d.list <- lapply(d.list, mutate, Date = as.Date(Date, format = "%d/%m/%y"))
+#############################Formato de datos###################################
 
-# Unimos de 1415 a 1819 usando la función bind_rows() de dplyr}
+d.list <- lapply(d.list, mutate, Date = as.Date(Date, format = "%d/%m/%y"))     #Aplica un formato homogéneo de tipo fecha al set de listas
 
-d1019S <- bind_rows(d.list[1:9], .id = NULL)
+################################Unificación#####################################
 
-# Renombrar columnas
+d1019S <- bind_rows(d.list[1:9], .id = NULL)                                    # Unimos de 1011 a 1819 usando la función bind_rows() de dplyr
 
-d1019S <- rename(d1019S,  Max.2.5.O = BbMx.2.5, 
+############################### Renombrar ######################################
+
+d1019S <- rename(d1019S,  Max.2.5.O = BbMx.2.5,                                 #Usando rename del paquete dplyr, se cambian los nombres de las columnas para el data frame 2010-2019
                  Avg.2.5.O = BbAv.2.5, 
                  Max.2.5.U = BbMx.2.5.1,
                  Avg.2.5.U = BbAv.2.5.1)
 
-d1920S <- d.list[[10]] #guardamos el dataframe 1920 en d1920S
+d1920S <- d.list[[10]]                                                          #guardamos el dataframe 1920 en d1920S          
 
-d1920S <- rename(d1920S,  Max.2.5.O = Max.2.5, 
+d1920S <- rename(d1920S,  Max.2.5.O = Max.2.5,                                  #Usando rename del paquete dplyr, se cambian los nombres de las columnas para los datos del 2019-2020
                  Avg.2.5.O = Avg.2.5, 
                  Max.2.5.U = Max.2.5.1,
                  Avg.2.5.U = Avg.2.5.1)
 
-# Ordenamos las columnas
+d1019S <- select(d1019S, colnames(d1920S))                                      #Se ponen las columnas en el mismo orden para los dos data sets
 
-d1019S <- select(d1019S, colnames(d1920S))
+############################### Unificación ####################################
 
-# Volvemos a unir
+d1020S <- rbind(d1019S, d1920S)                                                 #Usando rbind, se combinan por filas los dataframes para tener los datos del 2010-2020
 
-d1020S <- rbind(d1019S, d1920S)
+############################## Formato de Columnas #############################
 
-# Renombramos
+d1020S <- rename(d1020S, date = Date, home.team = HomeTeam, home.score = FTHG,  #Renombra las columnas del dataframe
+                 away.team = AwayTeam, away.score = FTAG)
 
-d1020S <- rename(d1020S, date = Date, home.team = HomeTeam, home.score = FTHG, away.team = AwayTeam, away.score = FTAG)
+data <- select(d1020S, date, home.team, home.score, away.team,                   #Selecciona las columnas que se usarán en el órden que se desean                 
+               away.score:Avg.2.5.U) 
 
-# Ordenamos columnas
+head(data, n = 2L); tail(data, n = 2L)                                          # Este data frame contiene todos los datos necesarios
 
-data <- select(d1020S, date, home.team, home.score, away.team, away.score:Avg.2.5.U) # Este data frame contiene todos los datos necesarios
+################### Data frames de partidos y equipos ##########################
 
-head(data, n = 2L); tail(data, n = 2L)
+md <- data %>% select(date:away.score)                                          #Genera un nuevo dataframe (2010-2020) con los datos de la fecha, los nombres de los equipos, y los goles de casa y visitante
+write.csv(md, "match.data.csv", row.names = FALSE)                              #Guarda los el dataframe en un nuevo archivo.csv
+df <- create.fbRanks.dataframes(scores.file = "match.data.csv")                 #Crea un dataframe a partir del archivo creado
+teams <- df$teams; scores <- df$scores                                          #Guarda en una variable el nombre de los equipos (teams) y guarda el registro de los goles en otra (scores)
 
-# Data frames de partidos y equipos
+head(teams, n = 2L); dim(teams); head(scores, n = 2L); dim(scores)              #Paso de verificación
 
-md <- data %>% select(date:away.score)
-write.csv(md, "match.data.csv", row.names = FALSE)
-df <- create.fbRanks.dataframes(scores.file = "match.data.csv")
-teams <- df$teams; scores <- df$scores
+############# Conjuntos iniciales de entrenamiento y de prueba #################
 
-head(teams, n = 2L); dim(teams); head(scores, n = 2L); dim(scores)
+f <- scores$date                                                                #Guarda las fechas de los partidos en una variable
+fu <- unique(f)                                                                 #Toma las fechas que no están repetidas
+Ym <- format(fu, "%Y-%m")                                                       #Especifica el formato de las fechas
+Ym <- unique(Ym)                                                                #Toma los años-meses que no están repetidos
+places <- which(Ym[15]==format(scores$date, "%Y-%m"))                           #Considera partidos de 15 meses para comenzar a ajustar el modelo
+ffe <- scores$date[max(places)]                                                 #Fecha final (máxima) del conjunto de entrenamiento
 
-# Conjuntos iniciales de entrenamiento y de prueba
+################## Preparación para el ajuste del modelo #######################
 
-f <- scores$date # Fechas de partidos
-fu <- unique(f) # Fechas sin repetición
-Ym <- format(fu, "%Y-%m") # Meses y años
-Ym <- unique(Ym) # Meses y años sin repetir
-places <- which(Ym[15]==format(scores$date, "%Y-%m")) # Consideramos partidos de 15 meses para comenzar a ajustar el modelo
-ffe <- scores$date[max(places)] # Fecha final conjunto de entrenamiento
+train <- scores %>% filter(date <= ffe)                                         #Para entrenar al modelo se usan los datos desde el inicio hasta la fecha final (ffe)
+test <- scores %>% filter(date > ffe)                                           #Los datos de prueba son los que van después de los 15 meses que toma en cuenta el dataframe train
 
-# Consideraremos partidos de 15 meses para comenzar a ajustar el modelo. Así, nuestro primer conjunto de entrenamiento consiste de datos de partidos hasta el `r ffe` 
+head(train, n = 1); tail(train, n = 1)                                          #Paso de verificación
+head(test, n = 1); tail(test, n = 1)                                            #Paso de verificación
 
-train <- scores %>% filter(date <= ffe)
-test <- scores %>% filter(date > ffe)
+####################### Primer ajuste del modelo ###############################
 
-head(train, n = 1); tail(train, n = 1)
-head(test, n = 1); tail(test, n = 1)
+traindate <- unique(train$date)                                                 #Toma las fechas que no están repetidas
+testdate <- unique(test$date)                                                   #Toma las fechas que no están repetidas
 
-# Primer ajuste del modelo
-
-traindate <- unique(train$date)
-testdate <- unique(test$date)
-
-ranks <- rank.teams(scores = scores, teams = teams, 
+ranks <- rank.teams(scores = scores, teams = teams,                             #Hace un ranking de los equipos a partir del dataframe train
                     min.date = traindate[1], 
                     max.date = traindate[length(traindate)])
 
-# Primera predicción
+########################### Primera predicción #################################
 
-pred <- predict(ranks, date = testdate[1])
+pred <- predict(ranks, date = testdate[1])                                      #Hace la predicción con la primera fecha de prueba
+phs <- pred$scores$pred.home.score                                              #Predicción del resultado de casa
+pas <- pred$scores$pred.away.score                                              #Predicción del resultado de visitante
+pht <- pred$scores$home.team                                                    #Predicción del equipo de casa
+pat <- pred$scores$away.team                                                    #Predicción del equipo de visitante
 
-phs <- pred$scores$pred.home.score # predicted home score
-pas <- pred$scores$pred.away.score # predicted away score
-pht <- pred$scores$home.team # home team in predictions
-pat <- pred$scores$away.team # away team in predictions
+###################### Segundo ajusto y predicción #############################
 
-# Continuar ajustando y prediciendo
-
-phs <- NULL; pas <- NULL; pht <- NULL; pat <- NULL
-for(i in 1:(length(unique(scores$date))-170)){
-  ranks <- rank.teams(scores = scores, teams = teams, 
+phs <- NULL; pas <- NULL; pht <- NULL; pat <- NULL                              #Se eliminan las predicciones anteriores
+for(i in 1:(length(unique(scores$date))-170)){                                  #Loop for que cubre las fechas en el dataframe scores
+  ranks <- rank.teams(scores = scores, teams = teams,                           #El ciclo hace un ranking de los equipos y los resultados por cada fecha del dataframe scores
                       min.date = unique(scores$date)[i], 
                       max.date = unique(scores$date)[i+170-1], 
                       silent = TRUE,
                       time.weight.eta = 0.0005)
-  pred <- predict(ranks, date = unique(scores$date)[i+170],
+  pred <- predict(ranks, date = unique(scores$date)[i+170],                     #El ciclo hace una predicción por fecha
                   silent = TRUE)
   
-  phs <- c(phs, pred$scores$pred.home.score) # predicted home score
-  pas <- c(pas, pred$scores$pred.away.score) # predicted away score
-  pht <- c(pht, pred$scores$home.team) # home team in predictions
-  pat <- c(pat, pred$scores$away.team) # away team in predictions
+  phs <- c(phs, pred$scores$pred.home.score)                                    #Predicción de los resultados de casa
+  pas <- c(pas, pred$scores$pred.away.score)                                    #Predicción de los resultados de visitante
+  pht <- c(pht, pred$scores$home.team)                                          #Predicción de los equipos de casa
+  pat <- c(pat, pred$scores$away.team)                                          #Predicción de los equipos de visitante
 }
 
-# Eliminamos NA's
+########################### Limpieza de datos ##################################
 
-buenos <- !(is.na(phs) | is.na(pas)) # 
-phs <- phs[buenos] # predicted home score
-pas <- pas[buenos] # predicted away score
-pht <- pht[buenos] # home team in predictions
-pat <- pat[buenos] # away team in predictions
-momio <- data %>% filter(date >= unique(scores$date)[171]) # momios conjunto de prueba
-momio <- momio[buenos,]
-mean(pht == momio$home.team); mean(pat == momio$away.team)
-mean(phs + pas > 2.5 & momio$home.score + momio$away.score > 2.5)
-mean(phs + pas < 2.5 & momio$home.score + momio$away.score < 2.5)
-hs <- momio$home.score
-as <- momio$away.score
+buenos <- !(is.na(phs) | is.na(pas))                                            #Muestra los NA's de las predicciones como FALSE
+phs <- phs[buenos]                                                              #Incluye las predicciones sin datos NA
+pas <- pas[buenos] 
+pht <- pht[buenos] 
+pat <- pat[buenos] 
+momio <- data %>% filter(date >= unique(scores$date)[171])                      #Momio de conjunto de prueba. Dataframe con los datos que son mayores a las fechas únicas después de la posición 171
+momio <- momio[buenos,]                                                         #Quita los NA's del dataframe
+mean(pht == momio$home.team); mean(pat == momio$away.team)                      #Calcula el promedio de las igualdades en las que aparece TRUE al comparar los datos predecidos vs. el del momio
+mean(phs + pas > 2.5 & momio$home.score + momio$away.score > 2.5)               #Calcula el promedio en el que las predicciones y los datos originales son mayores a 2.5
+mean(phs + pas < 2.5 & momio$home.score + momio$away.score < 2.5)               #Se puede ver que los números de los promedios son similares entre sí, tanto de los equipos como el de las anotaciones
+hs <- momio$home.score                                                          #Guarda las anotaciones del juego de casa
+as <- momio$away.score                                                          #Guarda las anotaciones del juego de visitante
 
-# Probabilidades condicionales
+###################### Probabilidades condicionales ############################
 
-mean(phs + pas > 3) # proporción de partidos con más de tres goles según el modelo
-mean(phs + pas > 3 & hs + as > 2.5)/mean(phs + pas > 3) 
-# probabilidad condicional estimada de ganar en over 2.5
-mean(phs + pas < 2.1) # proporción de partidos con menos de 2.1 goles según el modelo
-mean(phs + pas < 2.1 & hs + as < 2.5)/mean(phs + pas < 2.1) 
-# probabilidad condicional estimada de ganar en under 2.5
+mean(phs + pas > 3)                                                             #Proporción de partidos con más de tres goles según el modelo
+mean(phs + pas > 3 & hs + as > 2.5)/mean(phs + pas > 3)                         #Probabilidad condicional estimada de ganar en over 2.5
+mean(phs + pas < 2.1)                                                           #Proporción de partidos con menos de 2.1 goles según el modelo
+mean(phs + pas < 2.1 & hs + as < 2.5)/mean(phs + pas < 2.1)                     #Probabilidad condicional estimada de ganar en under 2.5
 
-# Juegos con momios máximos
+##################### Juegos con momios máximos ################################
 
-cap <- 50000; g <- NULL
+cap <- 50000; g <- NULL                                                         #Condiciones iniciales
 
-for(j in 1:length(phs)){
-  if(((phs[j] + pas[j]) > 3) & (0.64/(momio$Max.2.5.O[j]^-1) > 1)){
-    if((hs[j] + as[j]) > 2.5) cap <- cap + 1000*(momio$Max.2.5.O[j]-1)
+for(j in 1:length(phs)){                                                        #Loop for desde el inicio hasta el final de la predicción de la anotación de casa
+  if(((phs[j] + pas[j]) > 3) & (0.64/(momio$Max.2.5.O[j]^-1) > 1)){             #Condicional if en donde se requiere que el marcador de la predicción sea mayor a 3 y que el momio máximo sea mayor a 1
+    if((hs[j] + as[j]) > 2.5) cap <- cap + 1000*(momio$Max.2.5.O[j]-1)          #Condicional if en donde se requiere que el marcador original sea mayor a 2.5
     else cap <- cap - 1000
     g <- c(g, cap)
   }
   
-  if(((phs[j] + pas[j]) < 2.1) & (0.58/(momio$Max.2.5.U[j]^-1) > 1)){
-    if((hs[j] + as[j]) < 2.5) cap <- cap + 1000*(momio$Max.2.5.U[j]-1)
+  if(((phs[j] + pas[j]) < 2.1) & (0.58/(momio$Max.2.5.U[j]^-1) > 1)){           #Condicional if en donde se requiere que el marcador de la predicción sea menor a 2.1 y que el momio máximo sea mayor a 1
+    if((hs[j] + as[j]) < 2.5) cap <- cap + 1000*(momio$Max.2.5.U[j]-1)          #Condicional if en donde se requiere que el marcador original sea menor a 2.5
     else cap <- cap - 1000
     g <- c(g, cap)
   }
 }
 
-# Escenario con momios máximos
 
-g <- data.frame(Num_Ap = 1:length(g), Capital = g)
-p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") + geom_point() +
+######################### Escenario con momios máximos #########################
+
+g <- data.frame(Num_Ap = 1:length(g), Capital = g)                              #Crea un dataframe con la lista generada en el loop for                                           
+p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") +         #Crea un gráfico
+  geom_point() +              
   labs(x = "Número de juego", 
        y = "Capital",
-       title = "Realizando una secuencia de juegos") +
+       title = "Secuencia de juegos",
+       subtitle= "Escenario con momios máximos") +
   theme(plot.title = element_text(size=12))  +
-  theme(axis.text.x = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1),
-        axis.text.y = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1))  # color, ángulo y estilo de las abcisas y ordenadas 
+  theme(axis.text.x = element_text(face = "bold", color="blue" ,                #Color, ángulo y estilo de las abcisas y ordenadas 
+                                   size = 10, angle = 25, hjust = 1),
+        axis.text.y = element_text(face = "bold", 
+                                   color="blue" , size = 10, angle = 25, hjust = 1))  
 p
 
-# Escenario con momios promedio
+png(filename="Dashboard/www/momios_max.png", width = 900, height = 498)         #Guardamos la gráfica resultante para usarla en nuestro dashboard
+p
+dev.off()
 
-cap <- 50000; g <- NULL
+######################## Juegos con momios promedio ############################
 
-for(j in 1:length(phs)){
-  if(((phs[j] + pas[j]) > 3) & (0.64/(momio$Avg.2.5.O[j]^-1) > 1)){
-    if((hs[j] + as[j]) > 2.5) cap <- cap + 1000*(momio$Avg.2.5.O[j]-1)
+cap <- 50000; g <- NULL                                                         #Condiciones iniciales
+
+for(j in 1:length(phs)){                                                        #Loop for desde el inicio hasta el final de la predicción de la anotación de casa
+  if(((phs[j] + pas[j]) > 3) & (0.64/(momio$Avg.2.5.O[j]^-1) > 1)){             #Condicional if en donde se requiere que el marcador de la predicción sea mayor a 3 y que el momio promedio sea mayor a 1
+    if((hs[j] + as[j]) > 2.5) cap <- cap + 1000*(momio$Avg.2.5.O[j]-1)          #Condicional if en donde se requiere que el marcador original sea mayor a 2.5
     else cap <- cap - 1000
     g <- c(g, cap)
   }
   
-  if(((phs[j] + pas[j]) < 2.1) & (0.58/(momio$Avg.2.5.U[j]^-1) > 1)){
-    if((hs[j] + as[j]) < 2.5) cap <- cap + 1000*(momio$Avg.2.5.U[j]-1)
+  if(((phs[j] + pas[j]) < 2.1) & (0.58/(momio$Avg.2.5.U[j]^-1) > 1)){           #Condicional if en donde se requiere que el marcador de la predicción sea menor a 2.1 y que el momio promedio sea mayor a 1
+    if((hs[j] + as[j]) < 2.5) cap <- cap + 1000*(momio$Avg.2.5.U[j]-1)          #Condicional if en donde se requiere que el marcador original sea menor a 2.5
     else cap <- cap - 1000
     g <- c(g, cap)
   }
 }
 
-g <- data.frame(Num_Ap = 1:length(g), Capital = g)
-p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") + geom_point() +
+###################### Escenario con momios promedio ###########################
+
+g <- data.frame(Num_Ap = 1:length(g), Capital = g)                              #Crea un dataframe con la lista generada en el loop for 
+p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="red") +            #Crea un gráfico
+  geom_point() +               
   labs(x = "Número de juego", 
        y = "Capital",
-       title = "Realizando una secuencia de juegos") +
+       title = "Secuencia de juegos",
+       subtitle= "Escenario con momios promedio") +
   theme(plot.title = element_text(size=12))  +
-  theme(axis.text.x = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1),
-        axis.text.y = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1))  # color, ángulo y estilo de las abcisas y ordenadas 
+  theme(axis.text.x = element_text(face = "bold", color="blue" ,                # color, ángulo y estilo de las abcisas y ordenadas 
+                                   size = 10, angle = 25, hjust = 1),
+        axis.text.y = element_text(face = "bold", color="blue" , 
+                                   size = 10, angle = 25, hjust = 1))  
 p
+
+png(filename="Dashboard/www/momios_prom.png", width = 900, height = 498)         #Guardamos la gráfica resultante para usarla en nuestro dashboard
+p
+dev.off()
