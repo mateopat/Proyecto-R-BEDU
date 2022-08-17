@@ -220,3 +220,45 @@ p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="red") + geom_point(
   theme(axis.text.x = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1),
         axis.text.y = element_text(face = "bold", color="blue" , size = 10, angle = 25, hjust = 1))  # color, ángulo y estilo de las abcisas y ordenadas 
 p
+
+############################Gráfico de barras####################################
+
+ggplot(md,aes(home.score))+
+  geom_bar(col="black",fill="purple")+ 
+  facet_wrap("away.team") +
+  labs(x ="Goles de local", y = "Frecuencia") + 
+  ggtitle("Liga Española Primera División")+
+  ylim(0,50)
+
+ggplot(md,aes(away.score))+
+  geom_bar(col="black",fill="light blue")+ 
+  facet_wrap("away.team") +
+  labs(x ="Goles de visitante", y = "Frecuencia") + 
+  ggtitle("Liga Española Primera División")+
+  ylim(0,50)
+
+##############################Serie de tiempo###################################
+
+rm<-data.frame(date=md$date,home.team=md$home.team,home.score=md$home.score,away.score=md$away.score)
+rm<- subset(rm, home.score>away.score)
+rm<- subset(rm, home.team == "Real Madrid")
+rm.ts <- ts(rm$home.score, start = 0, freq = 12)
+plot(rm.ts, xlab = "Time", ylab = "Goles del RM")
+title(main = "Serie de Tiempo")
+
+plot(diff(rm.ts), xlab = "Time", ylab = "Cambio en los Goles del RM")
+title(main = "Primera diferencia")
+
+acf(diff(as.numeric(rm.ts)), main = "Detectar modelo AR(p)")
+pacf(diff(as.numeric(rm.ts)), main = "Detectar modelo MA(q)")
+#AR,I,MA
+arima_model <- arima(rm.ts, order = c(2, 1, 2), 
+                     seas = list(order = c(2, 1, 2), 12))
+arima_model$coef
+
+
+pred <- predict(arima_model, 10)$pred
+ts.plot(cbind(rm.ts, pred), col = c("blue", "red"), xlab = "")
+title(main = "Time Series Prediction ARIMA(2,1,3)",
+      xlab = "Time",
+      ylab = "Goles del RM")
