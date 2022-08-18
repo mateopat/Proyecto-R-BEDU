@@ -10,13 +10,13 @@ ui <- navbarPage("Equipo 8",
                           h1("Goles de quipos local y visitante"),
                           selectInput("x", "Seleccione los equipos locales o visitantes: ",
                                       choices = c("Local", "Visitante")),
-                          plotOutput("plot", height = 800)
+                          plotOutput("plot", height = 800, width = 900)
                  ),
                  #Página 2
                  tabPanel("Probabilidades marginales", icon = icon("chart-area"),
                           h1("Gráficas de probabilidades marginales de anotar goles"),
                           selectInput("y", "Seleccione el equipo que desea ver la probabilidad de anorta gol(es): ",
-                                      choices = c("Casa", "Visitante", "Conjuntas Casa-Visitante")),
+                                      choices = c("Marginal Local", "Marginal Visitante", "Conjuntas Casa-Visitante")),
                           imageOutput("image1")
                  ),
                  #Página 3
@@ -39,6 +39,8 @@ ui <- navbarPage("Equipo 8",
 server <- function(input, output) { 
   
   library(ggplot2)
+  library(ggdark)
+  
   df <- read.csv("https://raw.githubusercontent.com/kotoromo/Proyecto-R-BEDU/main/match.data.csv")
   
   output$plot <- renderPlot({
@@ -48,18 +50,18 @@ server <- function(input, output) {
     
     if (input$x == "Local") {
       ggplot(df,aes(home.score))+
-        geom_bar(col="black",fill="purple")+ 
+        geom_bar(col="black",fill="purple3")+ 
         facet_wrap("away.team") +
         labs(x ="Goles de local", y = "Frecuencia") + 
         ggtitle("Liga Española Primera División")+
-        ylim(0,50)
+        ylim(0,50)+ dark_theme_gray()
     } else if (input$x == "Visitante") {
       ggplot(df,aes(away.score))+
-        geom_bar(col="black",fill="light blue")+ 
+        geom_bar(col="black",fill="deepskyblue4")+ 
         facet_wrap("away.team") +
         labs(x ="Goles de visitante", y = "Frecuencia") + 
         ggtitle("Liga Española Primera División")+
-        ylim(0,50)
+        ylim(0,50) + dark_theme_gray()
     }
     
     
@@ -72,15 +74,15 @@ server <- function(input, output) {
     if (is.null(input$y))
       return(NULL)
     
-    if (input$y == "Casa") {
+    if (input$y == "Marginal Local") {
       return(list(
-        src = "www/1.png",
+        src = "www/prob_marg_loc.png",
         contentType = "image/png",
         alt = "Grafica Resultado 1"
       ))
-    } else if (input$y == "Visitante") {
+    } else if (input$y == "Marginal Visitante") {
       return(list(
-        src = "www/2.png",
+        src = "www/prob_marg_vis.png",
         filetype = "image/png",
         alt = "Grafica Resultado 2"
       ))
@@ -88,7 +90,7 @@ server <- function(input, output) {
     
     else if (input$y == "Conjuntas Casa-Visitante") {
       return(list(
-        src = "www/3.png",
+        src = "www/prob_conj.png",
         filetype = "image/png",
         alt = "Grafica Resultado 3"
       ))

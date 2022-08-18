@@ -171,10 +171,11 @@ for(j in 1:length(phs)){                                                        
 
 
 ######################### Escenario con momios máximos #########################
+library(ggdark)
 
 g <- data.frame(Num_Ap = 1:length(g), Capital = g)                              #Crea un dataframe con la lista generada en el loop for                                           
-p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") +         #Crea un gráfico
-  geom_point() +              
+p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="deepskyblue4") +   #Crea un gráfico
+  geom_point(size=.6) +              
   labs(x = "Número de juego", 
        y = "Capital",
        title = "Secuencia de juegos",
@@ -183,7 +184,9 @@ p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="purple") +         
   theme(axis.text.x = element_text(face = "bold", color="blue" ,                #Color, ángulo y estilo de las abcisas y ordenadas 
                                    size = 10, angle = 25, hjust = 1),
         axis.text.y = element_text(face = "bold", 
-                                   color="blue" , size = 10, angle = 25, hjust = 1))  
+                                   color="blue" , size = 10, angle = 25, hjust = 1))+
+  dark_theme_gray()
+
 p
 
 png(filename="Dashboard/www/momios_max.png", width = 900, height = 498)         #Guardamos la gráfica resultante para usarla en nuestro dashboard
@@ -211,8 +214,8 @@ for(j in 1:length(phs)){                                                        
 ###################### Escenario con momios promedio ###########################
 
 g <- data.frame(Num_Ap = 1:length(g), Capital = g)                              #Crea un dataframe con la lista generada en el loop for 
-p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="red") +            #Crea un gráfico
-  geom_point() +               
+p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="brown4") +            #Crea un gráfico
+  geom_point(size=.4) +               
   labs(x = "Número de juego", 
        y = "Capital",
        title = "Secuencia de juegos",
@@ -221,7 +224,9 @@ p <- ggplot(g, aes(x=Num_Ap, y=Capital)) + geom_line( color="red") +            
   theme(axis.text.x = element_text(face = "bold", color="blue" ,                # color, ángulo y estilo de las abcisas y ordenadas 
                                    size = 10, angle = 25, hjust = 1),
         axis.text.y = element_text(face = "bold", color="blue" , 
-                                   size = 10, angle = 25, hjust = 1))  
+                                   size = 10, angle = 25, hjust = 1))+
+  dark_theme_gray()
+
 p
 
 png(filename="Dashboard/www/momios_prom.png", width = 900, height = 498)         #Guardamos la gráfica resultante para usarla en nuestro dashboard
