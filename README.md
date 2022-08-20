@@ -11,7 +11,6 @@
 
 ## Descripción
 
-TODO
 
 El proyecto está basado en un estudio realizado de resultados de los partidos de la liga premier de futbol española en temporadas pasadas.
 Con el código de momios.R se optimizó la descarga y lectura de los archivos fuentes, para poder obtener los resultados del comportamiento del capital con respecto a los momios de la casa de apuestas.
