@@ -18,3 +18,4 @@ En este mismo código en la parte final se agregaron pruebas de hipótesis de co
 
 Se elaboro un Dashboard en donde se plasma unas series de graficas de probabilidades de los goles de los equipos en su modalidad de Casa y de Visitante, también se agrego la tabla de datos de dicho estudio para poder consultar desde la fecha, equipos y los resultados. En el tablero también podemos observar una pestaña que presenta las hipótesis.
 
+
